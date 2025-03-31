@@ -1,0 +1,4 @@
+/usr/local/lib/libSDL_Graph.a
+/usr/local/include/SDL_Graph/RxFrame.hpp
+/usr/local/include/SDL_Graph/DrawAbleSprite.hpp
+/usr/local/include/SDL_Graph/Components/Template/RxComponent.hpp
