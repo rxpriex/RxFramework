@@ -2,3 +2,5 @@
 /usr/local/include/SDL_Graph/RxFrame.hpp
 /usr/local/include/SDL_Graph/DrawAbleSprite.hpp
 /usr/local/include/SDL_Graph/Components/Template/RxComponent.hpp
+/usr/local/include/SDL_Graph/Components/Label/RxLabel.hpp
+/usr/local/lib/cmake/SDL_Graph/SDL_GraphConfig.cmake

@@ -3,6 +3,9 @@ project(SDL_Graph LANGUAGES CXX)
 
 # Find SDL2 package
 find_package(SDL2 REQUIRED)
+find_package(SDL2_ttf REQUIRED)
+
+include_directories(${SDL2_TTF_INCLUDE_DIRS})
 
 # Include directories for the build process
 include_directories(include Graphics ${SDL2_INCLUDE_DIRS})
@@ -18,13 +21,14 @@ set(SOURCES
     Graphics/Components/Template/RxComponent.cpp
     Graphics/RxFrame.cpp
     Graphics/DrawAbleSprite.hpp
+    Graphics/Components/Label/RxLabel.cpp
 )
 
 # Create static library
 add_library(SDL_Graph STATIC ${SOURCES})
 
 # Link SDL2 to SDL_Graph
-target_link_libraries(SDL_Graph PRIVATE ${SDL2_LIBRARIES})
+target_link_libraries(SDL_Graph PRIVATE ${SDL2_LIBRARIES} ${SDL2_TTF_LIBRARIES})
 
 # Set output directory for the library to 'out' during build
 set_target_properties(SDL_Graph PROPERTIES
@@ -44,4 +48,17 @@ install(DIRECTORY Graphics/
     FILES_MATCHING
     PATTERN "*.hpp"
     PATTERN "*.h"
+)
+
+include(CMakePackageConfigHelpers)
+include(CMakeFindDependencyMacro)
+configure_package_config_file(${CMAKE_CURRENT_SOURCE_DIR}/Config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/SDL_GraphConfig.cmake
+    INSTALL_DESTINATION lib/cmake/SDL_Graph
+    PATH_VARS CMAKE_INSTALL_PREFIX
+    NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/SDL_GraphConfig.cmake
+    DESTINATION lib/cmake/SDL_Graph
 )

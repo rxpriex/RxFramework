@@ -8,6 +8,7 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_mutex.h>
 #include <SDL2/SDL_thread.h>
+#include <SDL2/SDL_ttf.h>
 
 #include <cstdlib>
 #include <stdio.h>
@@ -15,7 +16,7 @@
 #include <memory>
 #include <functional>
 
-#include "Components/Template/RxComponent.hpp"
+#include <Components/Template/RxComponent.hpp>
 
 static void __attribute__((noreturn)) THROW_SDL_ERROR(SDL_Window *DISPLAY,
                                                       SDL_Renderer *RENDERER) {
@@ -45,8 +46,9 @@ private:
     static int static_thread_function(void* I){
       RxFrame* frame = (RxFrame*)I;
 
-      if (SDL_Init(SDL_INIT_VIDEO) < 0)
+      if (SDL_Init(SDL_INIT_VIDEO) < 0 || TTF_Init() < 0) {
         return -1;
+      }
 
       frame->display = std::shared_ptr<SDL_Window>(SDL_CreateWindow("Test", 50, 50, frame->rw, frame->rh,
          SDL_WINDOW_SHOWN),[](SDL_Window* window) {
@@ -79,6 +81,8 @@ private:
       return 1;
     }
 
+    bool initFrame(int rw, int rh);
+
 public:
   RxFrame(int, int);
 
@@ -87,8 +91,6 @@ public:
   void setFps(int);
 
   int renderNextFrame();
-
-  bool initFrame(int rw, int rh);
 
   void addComponent(RxComponent*);
 
