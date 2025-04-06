@@ -1,4 +1,4 @@
-#include "Components/Template/RxComponent.hpp"
+#include "RxComponent.hpp"
 #include <cstdio>
 
 class DrawAbleSprite : public RxComponent {

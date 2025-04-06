@@ -107,6 +107,7 @@
 !project.clj
 !build.sbt
 !*.sbt
+!*.in
 
 # Include important documentation and project files
 !README

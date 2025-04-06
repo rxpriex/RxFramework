@@ -16,7 +16,7 @@
 #include <memory>
 #include <functional>
 
-#include <Components/Template/RxComponent.hpp>
+#include "RxComponent.hpp"
 
 static void __attribute__((noreturn)) THROW_SDL_ERROR(SDL_Window *DISPLAY,
                                                       SDL_Renderer *RENDERER) {

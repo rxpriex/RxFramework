@@ -1,4 +1,4 @@
-#include "RxFrame.hpp"
+#include "../include/RxFrame.hpp"
 #include <SDL2/SDL_mutex.h>
 #include <SDL2/SDL_mutex.h>
 #include <SDL2/SDL_thread.h>

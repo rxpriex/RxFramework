@@ -12,20 +12,30 @@ macro(set_and_check _var _file)
   endif()
 endmacro()
 
+macro(check_required_components _NAME)
+  foreach(comp ${${_NAME}_FIND_COMPONENTS})
+    if(NOT ${_NAME}_${comp}_FOUND)
+      if(${_NAME}_FIND_REQUIRED_${comp})
+        set(${_NAME}_FOUND FALSE)
+      endif()
+    endif()
+  endforeach()
+endmacro()
+
 ####################################################################################
 
-if(NOT CMakeFindDependencyMacro_FOUND)
-    find_file(CMAKE_FIND_DEPENDENCY_MACRO_FILE CMakeFindDependencyMacro.cmake
-        PATHS ${CMAKE_MODULE_PATH} ${CMAKE_ROOT}/Modules NO_DEFAULT_PATH)
-    if(CMAKE_FIND_DEPENDENCY_MACRO_FILE)
-        include(${CMAKE_FIND_DEPENDENCY_MACRO_FILE})
-        set(CMakeFindDependencyMacro_FOUND TRUE)
-    else()
-        message(FATAL_ERROR "CMakeFindDependencyMacro.cmake not found. Please ensure CMake is installed correctly.")
-    endif()
-endif()
+# Set include directories
+set_and_check(SDL_Graph_INCLUDE_DIRS "include/SDL_Graph")
 
+# Set library locations
+set_and_check(SDL_Graph_LIBRARIES "lib/libSDL_Graph.a")  # Adjust for your system (e.g., .lib on Windows)
+
+# Dependencies
 find_dependency(SDL2 REQUIRED)
+find_dependency(SDL2_ttf REQUIRED)
 
-include("${CMAKE_CURRENT_LIST_DIR}/SDL_Graph.cmake")
-check_required_components("YourLib")
+# Include targets file
+include("${CMAKE_CURRENT_LIST_DIR}/SDL_GraphTargets.cmake")
+
+# Mark as found
+set(SDL_Graph_FOUND TRUE)

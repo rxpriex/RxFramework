@@ -1,10 +1,8 @@
-#include "RxLabel.hpp"
-#include <Components/Template/RxComponent.hpp>
-#include <SDL_ttf.h>
+#include "../include/RxLabel.hpp"
 
 RxLabel::RxLabel(const char* text):RxComponent({0,0,0,0}, [&](RxComponent *rcmp,SDL_Renderer* sdlr){
-    if(textTexture)
-        SDL_Texture* textTexture = SDL_CreateTextureFromSurface(sdlr, textSurface);
+    if(!textTexture)
+        createTexture("arial",12);
     SDL_RenderCopy(sdlr, textTexture, NULL, &textRect);
 }){
     setText(text);

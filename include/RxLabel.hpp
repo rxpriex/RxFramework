@@ -1,5 +1,9 @@
-#include <Components/Template/RxComponent.hpp>
-#include <SDL_ttf.h>
+#ifndef RXLABEL_HEADER
+#define RXLABEL_HEADER
+
+#include <SDL2/SDL_ttf.h>
+
+#include "RxComponent.hpp"
 
 class RxLabel : public RxComponent{
 private:
@@ -20,3 +24,5 @@ public:
     void setText(const char*);
 
 };
+
+#endif
