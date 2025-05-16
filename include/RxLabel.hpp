@@ -1,7 +1,6 @@
 #ifndef RXLABEL_HEADER
 #define RXLABEL_HEADER
 
-#include <SDL2/SDL_ttf.h>
 
 #include "RxComponent.hpp"
 
@@ -10,7 +9,6 @@ private:
     const char* label_text;
     SDL_Texture* textTexture;
     SDL_Surface* textSurface;
-    TTF_Font* font;
 
     SDL_Rect textRect;
 

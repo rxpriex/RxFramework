@@ -51,7 +51,7 @@ set_and_check(SDL_Graph_LIBRARIES "${PACKAGE_PREFIX_DIR}/lib/libSDL_Graph.a")  #
 
 # Dependencies
 find_package(SDL2 REQUIRED)
-find_package(SDL2_ttf REQUIRED)
+#find_package(SDL2_ttf REQUIRED)
 
 # Include targets file
 include("${CMAKE_CURRENT_LIST_DIR}/SDL_GraphTargets.cmake")

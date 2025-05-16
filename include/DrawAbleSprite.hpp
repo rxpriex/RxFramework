@@ -26,7 +26,8 @@ public:
                       SDL_Rect to_render =
                           getRect(this->x, this->y, this->width, this->height);
                       SDL_RenderFillRect(render, &to_render);
-                    }),off(false) {
+                    }),
+        off(false) {
     hitbox.x = x;
     hitbox.y = y;
     hitbox.w = width;
@@ -36,7 +37,5 @@ public:
     setSize(width, height);
   }
 
-  bool isOff(){
-    return off;
-  }
+  bool isOff() { return off; }
 };

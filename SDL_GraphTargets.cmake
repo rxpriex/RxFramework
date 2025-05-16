@@ -50,7 +50,7 @@ unset(_cmake_expected_targets)
 add_library(SDL_Graph STATIC IMPORTED)
 
 set_target_properties(SDL_Graph PROPERTIES
-  INTERFACE_INCLUDE_DIRECTORIES "C:/Users/robin/Desktop/VRepos/GraphicLibrary/Graphics;C:/msys64/mingw64/include;C:/msys64/mingw64/include/SDL2"
+  INTERFACE_INCLUDE_DIRECTORIES "/home/rxpriex/vrepos/C_CXX/GraphicLibrary/Graphics;/usr/include;/usr/include/SDL2"
   INTERFACE_LINK_LIBRARIES "SDL2::SDL2main;SDL2::SDL2"
 )
 
@@ -58,7 +58,7 @@ set_target_properties(SDL_Graph PROPERTIES
 set_property(TARGET SDL_Graph APPEND PROPERTY IMPORTED_CONFIGURATIONS NOCONFIG)
 set_target_properties(SDL_Graph PROPERTIES
   IMPORTED_LINK_INTERFACE_LANGUAGES_NOCONFIG "CXX"
-  IMPORTED_LOCATION_NOCONFIG "C:/Users/robin/Desktop/VRepos/GraphicLibrary/out/libSDL_Graph.a"
+  IMPORTED_LOCATION_NOCONFIG "/home/rxpriex/vrepos/C_CXX/GraphicLibrary/out/libSDL_Graph.a"
   )
 
 # This file does not depend on other imported targets which have

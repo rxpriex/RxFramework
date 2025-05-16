@@ -17,11 +17,11 @@ void RxLabel::createTexture(const char* text, int fontSize){
         SDL_DestroyTexture(textTexture);
     if(textSurface)
         SDL_FreeSurface(textSurface);
-    if(font)
-        TTF_CloseFont(font);
+    //if(font)
+        //TTF_CloseFont(font);
 
-    font = TTF_OpenFont("font.ttf", 24);
-    SDL_Surface* textSurface = TTF_RenderText_Blended(font, "Hello, SDL2!", {255,255,255,255});
+    //font = TTF_OpenFont("font.ttf", 24);
+    //SDL_Surface* textSurface = TTF_RenderText_Blended(font, "Hello, SDL2!", {255,255,255,255});
 
     textRect = {x,y,width,height};
 }

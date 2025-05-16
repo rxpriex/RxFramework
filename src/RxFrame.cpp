@@ -1,43 +1,41 @@
 #include "../include/RxFrame.hpp"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
 #include <SDL2/SDL_mutex.h>
 #include <SDL2/SDL_thread.h>
 
+#include <SDL2/SDL_timer.h>
+#include <chrono>
+#include <iostream>
 #include <memory>
+#include <thread>
 
-RxFrame::RxFrame(int rw, int rh) {
-  if (!initFrame(rw, rh, DETACH_FROM_FRAME)) {
-    THROW_SDL_ERROR(display.get(), renderer.get());
-  }
-}
-
-RxFrame::RxFrame(int rw, int rh, unsigned char flags) {
-  if (!initFrame(rw, rh, flags)) {
-    THROW_SDL_ERROR(display.get(), renderer.get());
-  }
-}
-
-bool RxFrame::initFrame(int rw, int rh, unsigned char flags) {
-
+RxFrame::RxFrame(int rw, int rh, int frames) {
   children = std::shared_ptr<std::vector<RxComponent *>>(
       new std::vector<RxComponent *>);
 
   mutex = std::shared_ptr<SDL_mutex>(
       SDL_CreateMutex(), [](SDL_mutex *mutex) { SDL_DestroyMutex(mutex); });
 
+  keymap = std::shared_ptr<std::set<char>>(new std::set<char>());
+
   this->rw = rw;
   this->rh = rh;
-  this->frames = 60;
+  this->frames = frames;
   this->repaint = true;
   this->running = true;
+}
 
-if(flags & DETACH_FROM_FRAME){
-  graphicThread = std::shared_ptr<SDL_Thread>(
-      SDL_CreateThread(static_thread_function, "GraphicsThread", this),
-      [](SDL_Thread *th) {});
-		SDL_DetachThread(graphicThread.get());
-	}else if (flags & WAIT_ON_FRAME) {
-		static_thread_function((void*)this);
-	}
+bool RxFrame::initFrame(unsigned char flags) {
+
+  if (flags & DETACH_FROM_FRAME) {
+    graphicThread = std::shared_ptr<SDL_Thread>(
+        SDL_CreateThread(static_thread_function, "GraphicsThread", this),
+        [](SDL_Thread *th) {});
+    SDL_DetachThread(graphicThread.get());
+  } else if (flags & WAIT_ON_FRAME) {
+    static_thread_function((void *)this);
+  }
 
   return true;
 }
@@ -45,21 +43,29 @@ if(flags & DETACH_FROM_FRAME){
 int RxFrame::renderNextFrame() {
   SDL_Event event;
   SDL_PollEvent(&event);
-  if (event.type == SDL_QUIT)
+  switch (event.type) {
+  case SDL_QUIT:
     return -1;
-  if (event.type == SDL_KEYDOWN && keyListener.get())
-    (*keyListener.get())(event);
+  case SDL_KEYUP:
+    keymap.get()->erase((char)event.key.keysym.sym);
+    break;
+  case SDL_KEYDOWN:
+    char c = (char)event.key.keysym.sym;
+    if (keymap.get()->count(c) == 0)
+      (*keyListener.get())(event);
+    keymap.get()->insert((char)event.key.keysym.sym);
+    break;
+  }
 
   SDL_SetRenderDrawColor(renderer.get(), 0, 0, 0, 255);
   SDL_RenderClear(renderer.get());
 
   for (RxComponent *rc : *children.get()) {
-
     (*(rc->access_render_instructions()))(rc, renderer.get());
   }
 
+  SDL_Delay(10);
   SDL_RenderPresent(renderer.get());
-
   return 1;
 }
 

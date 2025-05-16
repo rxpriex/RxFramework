@@ -68,7 +68,7 @@
 
 # Include important build system files
 !CMakeLists.txt
-!*.cmake
+!Config.cmake.in
 !*.mk
 !*.sln
 !*.vcxproj
@@ -119,7 +119,6 @@
 !COPYING
 !*.md
 !*.rst
-!*.txt
 !*.org
 !*.adoc
 !*.pdf

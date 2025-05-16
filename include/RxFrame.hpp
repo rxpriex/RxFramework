@@ -7,7 +7,6 @@
 #include <SDL2/SDL_mutex.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_thread.h>
-#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_video.h>
 
 #include <cstdlib>
@@ -15,6 +14,7 @@
 #include <memory>
 #include <stdio.h>
 #include <vector>
+#include <set>
 
 #include "RxComponent.hpp"
 
@@ -43,13 +43,15 @@ private:
   std::shared_ptr<SDL_Thread> graphicThread;
   std::shared_ptr<std::function<void()>> onUpdate;
   std::shared_ptr<std::function<void(SDL_Event)>> keyListener;
+std::shared_ptr<std::set<char>> keymap;
 
   std::shared_ptr<std::vector<RxComponent *>> children;
 
   static int static_thread_function(void *I) {
     RxFrame *frame = (RxFrame *)I;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0 /*|| TTF_Init() < 0*/) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0 /*|| TTF_Init() < 0*/ 
+		|| SDL_Init(SDL_INIT_TIMER < 0)) {
       return -1;
     }
 
@@ -89,18 +91,16 @@ private:
     return 1;
   }
 
-  bool initFrame(int, int, unsigned char);
-
 public:
-  RxFrame(int, int);
-
-  RxFrame(int, int, unsigned char);
+  RxFrame(int, int, int);
 
   ~RxFrame() = default;
 
   void setFps(int);
 
   int renderNextFrame();
+
+  bool initFrame(unsigned char);
 
   void addComponent(RxComponent *);
 
