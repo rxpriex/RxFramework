@@ -90,9 +90,3 @@ RxFramework is a lightweight C++ framework for building 2D graphical application
 - **RxLabel**: Component for rendering text.
 - **DrawableSprite**: Component for rendering colored rectangles.
 - **RxFrame**: Manages the window and rendering loop.
-
-## Contributing
-Contributions are welcome! Please submit pull requests or open issues on the repository.
-
-## License
-This project is licensed under the MIT License. See the `LICENSE` file for details.
