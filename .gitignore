@@ -2,59 +2,15 @@
 *
 
 # Unignore all directories to allow recursion
-!*/
+!*/src
+!*/include
 
-# Unignore source files for common programming languages
-!*.c
 !*.cpp
-!*.h
 !*.hpp
-!*.java
-!*.py
-!*.js
-!*.ts
-!*.go
-!*.rs
-!*.kt
-!*.swift
-!*.rb
-!*.php
-!*.cs
-!*.sh
-!*.pl
-!*.m
-!*.mm
-!*.scala
-!*.groovy
-# Add more extensions as needed
+!*.cxx
+!*.hxx
+!*.c
+!*.h
 
-# Unignore crucial build system files
-__cmake_systeminformation
-CMakeFiles
-!build.gradle
-!settings.gradle
-!gradlew
-!gradlew.bat
-!gradle.properties
-!gradle/wrapper/*.jar
-!gradle/wrapper/*.properties
-!pom.xml
-!Makefile
-!*.mk
-!CMakeLists.txt
-!Config.cmake.in
-
-# Unignore standard files
-!README*
-!LICENSE*
-!CONTRIBUTING*
-!MANIFEST*
-!.gitignore
-
-# Ignore common build directories
-build/
-target/
-out/
-dist/
-bin/
-obj/
+!*CMakeLists.txt
+!*Config.cmake.in
