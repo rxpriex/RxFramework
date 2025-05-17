@@ -30,6 +30,7 @@
 
 # Unignore crucial build system files
 __cmake_systeminformation
+CMakeFiles
 !build.gradle
 !settings.gradle
 !gradlew
@@ -41,7 +42,7 @@ __cmake_systeminformation
 !Makefile
 !*.mk
 !CMakeLists.txt
-!*Config.cmake.in
+!Config.cmake.in
 
 # Unignore standard files
 !README*
