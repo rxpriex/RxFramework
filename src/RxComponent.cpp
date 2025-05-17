@@ -47,9 +47,9 @@ bool RxComponent::move(){
   hitbox.y += yspeed;
 
   if (SDL_HasIntersection(&bounds, &hitbox) == SDL_FALSE) {
-    if ((hitbox.y) >= (bounds.y + bounds.h)) {
-        hitbox.x -= xspeed;
+	 hitbox.x -= xspeed;
         hitbox.y -= yspeed;
+    if ((hitbox.y) >= (bounds.y + bounds.h)) {
         return false;
     }
   } else {

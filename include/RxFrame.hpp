@@ -33,6 +33,7 @@ static void __attribute__((noreturn)) THROW_SDL_ERROR(SDL_Window *DISPLAY,
 class RxFrame {
 private:
   int frames;
+int frameTime;
   int rw, rh;
   bool repaint;
   bool running;

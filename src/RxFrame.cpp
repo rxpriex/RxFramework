@@ -8,7 +8,6 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
-#include <thread>
 
 RxFrame::RxFrame(int rw, int rh, int frames) {
   children = std::shared_ptr<std::vector<RxComponent *>>(
@@ -21,9 +20,10 @@ RxFrame::RxFrame(int rw, int rh, int frames) {
 
   this->rw = rw;
   this->rh = rh;
-  this->frames = frames;
   this->repaint = true;
   this->running = true;
+
+  setFps(frames);
 }
 
 bool RxFrame::initFrame(unsigned char flags) {
@@ -41,6 +41,7 @@ bool RxFrame::initFrame(unsigned char flags) {
 }
 
 int RxFrame::renderNextFrame() {
+  auto timeAtStart = std::chrono::system_clock::now();
   SDL_Event event;
   SDL_PollEvent(&event);
   switch (event.type) {
@@ -64,7 +65,14 @@ int RxFrame::renderNextFrame() {
     (*(rc->access_render_instructions()))(rc, renderer.get());
   }
 
-  SDL_Delay(10);
+  auto timeAtEnd = std::chrono::system_clock::now();
+  long frameTime = timeAtEnd.time_since_epoch().count() -
+                   timeAtStart.time_since_epoch().count();
+
+  int timeToWait = (this->frameTime - (frameTime/1000));
+  if (timeToWait > 0)
+    SDL_Delay(timeToWait);
+
   SDL_RenderPresent(renderer.get());
   return 1;
 }
@@ -79,4 +87,9 @@ void RxFrame::setOnUpdate(std::function<void()> uFunc) {
 
 void RxFrame::setKeyListener(std::function<void(SDL_Event)> kFunc) {
   keyListener = std::shared_ptr<std::function<void(SDL_Event)>>(&kFunc);
+}
+
+void RxFrame::setFps(int fps) {
+  frames = fps;
+  frameTime = 1000 / fps;
 }
