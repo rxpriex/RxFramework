@@ -1,57 +1,98 @@
-#ifndef COMPONENT_BLUEPRINT_HEADER
-#define COMPONENT_BLUEPRINT_HEADER
+#ifndef RX_COMPONENT_HEADER
+#define RX_COMPONENT_HEADER
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_render.h>
 #include <functional>
 
-
+/**
+ * @brief Represents a color with RGBA components.
+ */
 class Color {
 public:
-  int r, g, b, a;
-  Color(int r, int g, int b, int a) {
-    this->r = r;
-    this->g = g;
-    this->b = b;
-    this->a = a;
-  }
-  ~Color() = default;
+    int r, g, b, a;
+    Color(int r, int g, int b, int a) : r(r), g(g), b(b), a(a) {}
+    ~Color() = default;
 };
 
+/**
+ * @brief Base class for renderable components in the Rx framework.
+ */
 class RxComponent {
 protected:
-  int x, y;
-  int width, height;
-  int xspeed,yspeed;
-  SDL_Rect hitbox;
-  SDL_Rect bounds;
-
-  Color c;
-
-  std::function<void(RxComponent *,SDL_Renderer*)> render_instructions;
+    int mX, mY;
+    int mWidth, mHeight;
+    int mXSpeed, mYSpeed;
+    SDL_Rect mHitbox;
+    SDL_Rect mBounds;
+    Color mColor;
+    std::function<void(RxComponent*, SDL_Renderer*)> mRenderInstructions;
 
 public:
-  RxComponent(Color c, std::function<void(RxComponent *,SDL_Renderer*)> render_instructions)
-      : c(c), render_instructions(render_instructions), xspeed(0), yspeed(0), x(0),y(0) {}
+    /**
+     * @brief Constructs a component with a color and render function.
+     * @param color The color of the component.
+     * @param renderInstructions The rendering function.
+     */
+    RxComponent(Color color, std::function<void(RxComponent*, SDL_Renderer*)> renderInstructions)
+        : mColor(color), mRenderInstructions(renderInstructions), mXSpeed(0), mYSpeed(0), mX(0), mY(0) {}
 
-  ~RxComponent() = default;
+    virtual ~RxComponent() = default;
 
-  bool move();
+    /**
+     * @brief Moves the component based on speed and bounds.
+     * @return True if movement is valid, false otherwise.
+     */
+    bool move();
 
-  void setSize(int, int);
+    /**
+     * @brief Sets the component's size.
+     * @param width The width.
+     * @param height The height.
+     */
+    void setSize(int width, int height);
 
-  void setBounds(int, int);
+    /**
+     * @brief Sets the movement bounds.
+     * @param maxX The maximum x-boundary.
+     * @param maxY The maximum y-boundary.
+     */
+    void setBounds(int maxX, int maxY);
 
-  void setLocation(int, int);
+    /**
+     * @brief Sets the component's position.
+     * @param x The x-coordinate.
+     * @param y The y-coordinate.
+     */
+    void setLocation(int x, int y);
 
-  bool hasCollission(RxComponent&);
+    /**
+     * @brief Checks for collision with another component.
+     * @param other The other component.
+     * @return True if collision occurs, false otherwise.
+     */
+    bool hasCollision(RxComponent& other);
 
-  void set_movement_parameters(int,int);
+    /**
+     * @brief Sets movement speed.
+     * @param xSpeed The x-axis speed.
+     * @param ySpeed The y-axis speed.
+     */
+    void setMovementParameters(int xSpeed, int ySpeed);
 
-  void getParameters(int*,int*,int*,int*);
+    /**
+     * @brief Gets position and size parameters.
+     * @param x Pointer for x-coordinate.
+     * @param y Pointer for y-coordinate.
+     * @param w Pointer for width.
+     * @param h Pointer for height.
+     */
+    void getParameters(int* x, int* y, int* w, int* h);
 
-  std::function<void(RxComponent *,SDL_Renderer*)> *access_render_instructions();
-
+    /**
+     * @brief Accesses the render instructions.
+     * @return Pointer to the render function.
+     */
+    std::function<void(RxComponent*, SDL_Renderer*)>* getRenderInstructions();
 };
 
 #endif

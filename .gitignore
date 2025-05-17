@@ -1,0 +1,16 @@
+*
+
+!*src/
+!*include/
+
+!*.cpp
+!*.hpp
+!*.cxx
+!*.hxx
+!*.c
+!*.h
+
+!CMakeLists.txt
+!Config.cmake.in
+!.gitignore
+!README.MD

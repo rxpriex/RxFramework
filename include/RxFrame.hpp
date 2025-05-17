@@ -1,91 +1,89 @@
-#ifndef RXFRAME_HEADER
-#define RXFRAME_HEADER
+#ifndef RX_FRAME_HEADER
+#define RX_FRAME_HEADER
 
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_error.h>
-#include <SDL2/SDL_events.h>
-#include <SDL2/SDL_mutex.h>
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_thread.h>
-#include <SDL2/SDL_video.h>
-
-#include <cstdlib>
 #include <functional>
 #include <memory>
-#include <stdio.h>
-#include <vector>
 #include <set>
-
+#include <vector>
 #include "RxComponent.hpp"
 
 const unsigned char WAIT_ON_FRAME = 0b00000001;
 const unsigned char DETACH_FROM_FRAME = 0b00000010;
 
-static void __attribute__((noreturn)) THROW_SDL_ERROR(SDL_Window *DISPLAY,
-                                                      SDL_Renderer *RENDERER) {
-  printf("Program exited with a error %s", SDL_GetError());
-  SDL_DestroyWindow(DISPLAY);
-  SDL_DestroyRenderer(RENDERER);
-  SDL_Quit();
-  exit(-1);
-}
-
-class RxFrame {
+/**
+ * @brief A window frame for rendering components.
+ */
+class RxFrame
+{
 private:
-  int frames;
-int frameTime;
-  int rw, rh;
-  bool repaint;
-  bool running;
+  int mFramesPerSecond;
+  int mFrameTime;
+  int mWidth, mHeight;
+  bool mNeedsRepaint;
+  bool mIsRunning;
 
-  std::shared_ptr<SDL_mutex> mutex;
-  std::shared_ptr<SDL_Window> display;
-  std::shared_ptr<SDL_Renderer> renderer;
-  std::shared_ptr<SDL_Thread> graphicThread;
-  std::shared_ptr<std::function<void()>> onUpdate;
-  std::shared_ptr<std::function<void(SDL_Event)>> keyListener;
-std::shared_ptr<std::set<char>> keymap;
+  std::shared_ptr<SDL_mutex> mMutex;
+  std::shared_ptr<SDL_Window> mDisplay;
+  std::shared_ptr<SDL_Renderer> mRenderer;
+  std::shared_ptr<SDL_Thread> mGraphicThread;
+  std::shared_ptr<std::function<void()>> mOnUpdate;
+  std::shared_ptr<std::function<void(SDL_Event)>> mKeyListener;
+  std::shared_ptr<std::set<char>> mKeyMap;
+  std::shared_ptr<std::vector<RxComponent *>> mChildren;
 
-  std::shared_ptr<std::vector<RxComponent *>> children;
-
-  static int static_thread_function(void *I) {
+  /**
+   * @brief Static thread function for graphics rendering.
+   * @param data Pointer to the RxFrame instance.
+   * @return 1 on success, -1 on failure.
+   */
+  static int static_thread_function(void *I)
+  {
     RxFrame *frame = (RxFrame *)I;
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0 /*|| TTF_Init() < 0*/ 
-		|| SDL_Init(SDL_INIT_TIMER < 0)) {
+    if (SDL_Init(SDL_INIT_VIDEO) < 0 /*|| TTF_Init() < 0*/
+        || SDL_Init(SDL_INIT_TIMER < 0))
+    {
       return -1;
     }
 
-    frame->display = std::shared_ptr<SDL_Window>(
-        SDL_CreateWindow("Test", 50, 50, frame->rw, frame->rh,
+    frame->mDisplay = std::shared_ptr<SDL_Window>(
+        SDL_CreateWindow("Test", 50, 50, frame->mWidth, frame->mHeight,
                          SDL_WINDOW_SHOWN),
-        [](SDL_Window *window) {
-          if (window) {
+        [](SDL_Window *window)
+        {
+          if (window)
+          {
             SDL_DestroyWindow(window);
           }
         });
-    if (!frame->display.get())
+    if (!frame->mDisplay.get())
       return -1;
 
-    frame->renderer = std::shared_ptr<SDL_Renderer>(
-        SDL_CreateRenderer(frame->display.get(), -1, SDL_RENDERER_ACCELERATED),
-        [](SDL_Renderer *render) {
-          if (render) {
+    frame->mRenderer = std::shared_ptr<SDL_Renderer>(
+        SDL_CreateRenderer(frame->mDisplay.get(), -1, SDL_RENDERER_ACCELERATED),
+        [](SDL_Renderer *render)
+        {
+          if (render)
+          {
             SDL_DestroyRenderer(render);
           }
         });
-    if (!frame->renderer.get())
+    if (!frame->mRenderer.get())
       return -1;
 
-    while (frame->running) {
-      if (frame->repaint) {
-        SDL_mutexP(frame->mutex.get());
+    while (frame->mIsRunning)
+    {
+      if (frame->mNeedsRepaint)
+      {
+        SDL_mutexP(frame->mMutex.get());
         if (frame->renderNextFrame() == -1)
-          frame->running = false;
-        SDL_mutexV(frame->mutex.get());
+          frame->mIsRunning = false;
+        SDL_mutexV(frame->mMutex.get());
       }
-      if (frame->onUpdate.get()) {
-        (*frame->onUpdate.get())();
+      if (frame->mOnUpdate.get())
+      {
+        (*frame->mOnUpdate.get())();
       }
     }
 
@@ -93,21 +91,52 @@ std::shared_ptr<std::set<char>> keymap;
   }
 
 public:
-  RxFrame(int, int, int);
+  /**
+   * @brief Constructs a frame with specified dimensions and frame rate.
+   * @param width The width of the frame.
+   * @param height The height of the frame.
+   * @param fps The target frames per second.
+   */
+  RxFrame(int width, int height, int fps);
 
   ~RxFrame() = default;
 
-  void setFps(int);
+  /**
+   * @brief Sets the target frame rate.
+   * @param fps The desired frames per second.
+   */
+  void setFps(int fps);
 
+  /**
+   * @brief Renders the next frame.
+   * @return 1 on success, -1 if the frame should close.
+   */
   int renderNextFrame();
 
-  bool initFrame(unsigned char);
+  /**
+   * @brief Initializes the frame.
+   * @param flags Bitmask for frame behavior.
+   * @return True if initialization succeeds, false otherwise.
+   */
+  bool initFrame(unsigned char flags);
 
-  void addComponent(RxComponent *);
+  /**
+   * @brief Adds a component to the frame.
+   * @param component Pointer to the component.
+   */
+  void addComponent(RxComponent *component);
 
-  void setOnUpdate(std::function<void()>);
+  /**
+   * @brief Sets the update callback.
+   * @param updateFunc The update function.
+   */
+  void setOnUpdate(std::function<void()> updateFunc);
 
-  void setKeyListener(std::function<void(SDL_Event)>);
+  /**
+   * @brief Sets the key event listener.
+   * @param keyFunc The key event handler.
+   */
+  void setKeyListener(std::function<void(SDL_Event)> keyFunc);
 };
 
 #endif
