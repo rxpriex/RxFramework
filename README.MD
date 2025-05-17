@@ -35,10 +35,16 @@ RxFramework is a lightweight C++ framework for building 2D graphical application
    ```
 
 3. **Build the Project**:
-   Use a C++ compiler (e.g., `g++`) and link against SDL2 and SDL2_ttf. Example:
+   Use cmake to build and install the project
    ```bash
-   g++ -o app src/*.cpp -lSDL2 -lSDL2_ttf -Iinclude
+   cmake --build . && cmake --install .
    ```
+
+3. **Include the library**:
+   Use cmake to include the library in your project using
+   ```cmake
+   find_package(SDL_Graph REQUIRED)
+   ``` 
 
 ## Usage
 1. **Create a Frame**:
