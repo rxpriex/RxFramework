@@ -1,9 +1,0 @@
-/usr/local/lib/libSDL_Graph.a
-/usr/local/include/SDL_Graph/RxComponent.hpp
-/usr/local/include/SDL_Graph/DrawAbleSprite.hpp
-/usr/local/include/SDL_Graph/RxLabel.hpp
-/usr/local/include/SDL_Graph/RxFrame.hpp
-/usr/local/lib/cmake/SDL_Graph/SDL_GraphConfig.cmake
-/usr/local/lib/cmake/SDL_Graph/SDL_GraphConfigVersion.cmake
-/usr/local/lib/cmake/SDL_Graph/SDL_GraphTargets.cmake
-/usr/local/lib/cmake/SDL_Graph/SDL_GraphTargets-noconfig.cmake
