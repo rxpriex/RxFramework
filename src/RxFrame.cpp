@@ -1,4 +1,6 @@
 #include "../include/RxFrame.hpp"
+#include <SDL2/SDL_events.h>
+#include <SDL2/SDL_rect.h>
 #include <SDL2/SDL_timer.h>
 #include <chrono>
 #include <iostream>
@@ -36,6 +38,21 @@ bool RxFrame::initFrame(unsigned char flags) {
     return true;
 }
 
+void RxFrame::mouseClick(SDL_Event event){
+    int x = event.button.x;
+    int y = event.button.y;
+    RxComponent bounds(Color(0,0,0,0),0);
+    bounds.setLocation(x, y);
+    bounds.setSize(1, 1);
+    for(RxComponent* rx : *(mChildren.get())){
+        if(rx->hasCollision(bounds))
+            if(rx->getAction()){
+                (*rx->getAction())(rx);
+                return;
+            }
+    }
+}
+
 /**
  * @brief Renders the next frame and handles events.
  * @return 1 if rendering succeeds, -1 if the frame should close.
@@ -47,16 +64,21 @@ int RxFrame::renderNextFrame() {
         switch (event.type) {
         case SDL_QUIT:
             return -1;
+        case SDL_MOUSEBUTTONDOWN:
+            mouseClick(event);
+            break;
         case SDL_KEYUP:
             mKeyMap->erase(static_cast<char>(event.key.keysym.sym));
             break;
         case SDL_KEYDOWN:
             char key = static_cast<char>(event.key.keysym.sym);
             if (mKeyMap->count(key) == 0) {
-                (*mKeyListener)(event);
+                if(mKeyListener)
+                    (*mKeyListener)(event);
                 mKeyMap->insert(key);
             }
             break;
+
         }
     }
 

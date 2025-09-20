@@ -33,6 +33,12 @@ private:
   std::shared_ptr<std::vector<RxComponent *>> mChildren;
 
   /**
+   * @brief Internal mouse click handler.
+   * @param event Mouse click event.
+   */
+  void mouseClick(SDL_Event);
+
+  /**
    * @brief Static thread function for graphics rendering.
    * @param data Pointer to the RxFrame instance.
    * @return 1 on success, -1 on failure.

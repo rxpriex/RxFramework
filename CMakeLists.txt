@@ -4,13 +4,15 @@ project(SDL_Graph LANGUAGES CXX)
 # Find SDL2 package
 find_package(SDL2 REQUIRED)
 
-# Source files
-set(SOURCES
-    src/RxComponent.cpp
-    src/RxFrame.cpp
-    include/DrawAbleSprite.hpp
-    src/RxLabel.cpp
-)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
+
+function(collect_sources ROOT_DIR OUT_VAR)
+    file(GLOB_RECURSE SRC_C   "${ROOT_DIR}/*.cpp" "${ROOT_DIR}/*.cxx" "${ROOT_DIR}/*.c")
+    set(SRCS ${SRC_C})
+    set(${OUT_VAR} ${SRCS} PARENT_SCOPE)
+endfunction()
+
+collect_sources(${CMAKE_SOURCE_DIR}/src SOURCES)
 
 # Create static library
 add_library(SDL_Graph STATIC ${SOURCES})

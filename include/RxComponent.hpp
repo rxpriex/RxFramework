@@ -2,7 +2,9 @@
 #define RX_COMPONENT_HEADER
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_events.h>
 #include <functional>
+#include <memory>
 
 /**
  * @brief Represents a color with RGBA components.
@@ -25,7 +27,8 @@ protected:
     SDL_Rect mHitbox;
     SDL_Rect mBounds;
     Color mColor;
-    std::function<void(RxComponent*, SDL_Renderer*)> mRenderInstructions;
+    std::shared_ptr<std::function<void(RxComponent*, SDL_Renderer*)>> mRenderInstructions;
+    std::shared_ptr<std::function<void(RxComponent*)>> mOnAction;
 
 public:
     /**
@@ -34,7 +37,7 @@ public:
      * @param renderInstructions The rendering function.
      */
     RxComponent(Color color, std::function<void(RxComponent*, SDL_Renderer*)> renderInstructions)
-        : mColor(color), mRenderInstructions(renderInstructions), mXSpeed(0), mYSpeed(0), mX(0), mY(0) {}
+        : mColor(color), mRenderInstructions(std::make_shared<std::function<void(RxComponent*, SDL_Renderer*)>>(renderInstructions)), mXSpeed(0), mYSpeed(0), mX(0), mY(0) {}
 
     virtual ~RxComponent() = default;
 
@@ -43,6 +46,12 @@ public:
      * @return True if movement is valid, false otherwise.
      */
     bool move();
+
+    /**
+     * @brief Sets the color of the component.
+     * @param c The color to be set.
+     */
+     void setColor(Color c);
 
     /**
      * @brief Sets the component's size.
@@ -87,6 +96,18 @@ public:
      * @param h Pointer for height.
      */
     void getParameters(int* x, int* y, int* w, int* h);
+
+    /**
+     * @brief Sets the action for the component.
+     * @param a Action to be set.
+     */
+     void setAction(std::function<void(RxComponent*)> action);
+
+     /**
+      * @brief Getter for the components action.
+      * @return The components action.
+      */
+     std::function<void(RxComponent*)>* getAction();
 
     /**
      * @brief Accesses the render instructions.

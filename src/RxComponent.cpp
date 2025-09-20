@@ -1,4 +1,6 @@
 #include "../include/RxComponent.hpp"
+#include <functional>
+#include <memory>
 
 /**
  * @brief Sets the position of the component.
@@ -10,6 +12,14 @@ void RxComponent::setLocation(int x, int y) {
     mY = y;
     mHitbox.x = x;
     mHitbox.y = y;
+}
+
+void RxComponent::setAction(std::function<void(RxComponent*)> action){
+    mOnAction = std::make_shared<std::function<void(RxComponent*)>>(action);
+}
+
+std::function<void(RxComponent*)>* RxComponent::getAction(){
+    return mOnAction.get();
 }
 
 /**
@@ -29,7 +39,11 @@ void RxComponent::setSize(int width, int height) {
  * @return Pointer to the render function.
  */
 std::function<void(RxComponent*, SDL_Renderer*)>* RxComponent::getRenderInstructions() {
-    return &mRenderInstructions;
+    return mRenderInstructions.get();
+}
+
+void RxComponent::setColor(Color c){
+    mColor = c;
 }
 
 /**
