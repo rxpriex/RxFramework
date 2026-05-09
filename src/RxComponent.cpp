@@ -1,116 +1,41 @@
-#include "../include/RxComponent.hpp"
+#include <SDL_Graph/Components/RxComponent.hpp>
 #include <functional>
 #include <memory>
-
-/**
- * @brief Sets the position of the component.
- * @param x The x-coordinate.
- * @param y The y-coordinate.
- */
-void RxComponent::setLocation(int x, int y) {
-    mX = x;
-    mY = y;
-    mHitbox.x = x;
-    mHitbox.y = y;
-}
-
-void RxComponent::setAction(std::function<void(RxComponent*)> action){
-    mOnAction = std::make_shared<std::function<void(RxComponent*)>>(action);
-}
-
-std::function<void(RxComponent*)>* RxComponent::getAction(){
-    return mOnAction.get();
-}
-
-/**
- * @brief Sets the size of the component.
- * @param width The width of the component.
- * @param height The height of the component.
- */
-void RxComponent::setSize(int width, int height) {
-    mWidth = width;
-    mHeight = height;
-    mHitbox.w = width;
-    mHitbox.h = height;
-}
 
 /**
  * @brief Provides access to the component's render instructions.
  * @return Pointer to the render function.
  */
-std::function<void(RxComponent*, SDL_Renderer*)>* RxComponent::getRenderInstructions() {
-    return mRenderInstructions.get();
+std::function<void(Renderable *, SDL_Renderer *)> *
+Renderable::getRenderInstructions() {
+  return mRenderInstructions.get();
 }
 
-void RxComponent::setColor(Color c){
-    mColor = c;
+void Renderable::set_bounds(Vec2D bounds) { screen_bounds_ = bounds; }
+
+float &Base3D::rotationX() { return angle_x_; }
+
+float &Base3D::rotationY() { return angle_y_; }
+
+void Base3D::Transform() {
+  if (!screen_space_)
+    screen_space_ = new Point2D[vertices_count_];
+  for (int i = 0; i < vertices_count_; i++) {
+    Point3D transform = rotate_xz(vertices_[i], angle_x_);
+    transform = rotate_yz(transform, angle_y_);
+    transform.z += z_offset_;
+    vector_add_3D(transform, offset_vector);
+    Point2D projected = project_to_screen(transform);
+    projected = absolute_coordinates(projected, screen_bounds_);
+    screen_space_[i] = projected;
+  }
+  changed_ = false;
 }
 
-/**
- * @brief Retrieves the component's position and size parameters.
- * @param x Pointer to store x-coordinate (can be nullptr).
- * @param y Pointer to store y-coordinate (can be nullptr).
- * @param w Pointer to store width (can be nullptr).
- * @param h Pointer to store height (can be nullptr).
- */
-void RxComponent::getParameters(int* x, int* y, int* w, int* h) {
-    if (x) *x = mX;
-    if (y) *y = mY;
-    if (w) *w = mWidth;
-    if (h) *h = mHeight;
-}
+Vec3D &Base3D::getOffsetVector() { return offset_vector; }
 
-/**
- * @brief Checks for collision with another component.
- * @param other The other component to check against.
- * @return True if the components collide, false otherwise.
- */
-bool RxComponent::hasCollision(RxComponent& other) {
-    return SDL_HasIntersection(&mHitbox, &other.mHitbox) == SDL_TRUE;
-}
+Point2D *Base3D::ScreenSpaceCoordinates() { return screen_space_; }
 
-/**
- * @brief Sets the movement bounds for the component.
- * @param maxX The maximum x-boundary.
- * @param maxY The maximum y-boundary.
- */
-void RxComponent::setBounds(int maxX, int maxY) {
-    mBounds.h = maxY;
-    mBounds.w = maxX;
-    mBounds.x = 0;
-    mBounds.y = 0;
-}
+Color &Base3D::getColor() { return color_; }
 
-/**
- * @brief Moves the component based on its speed and checks bounds.
- * @return True if movement is valid, false if out of bounds.
- */
-bool RxComponent::move() {
-    mHitbox.x += mXSpeed;
-    mHitbox.y += mYSpeed;
-
-    if (SDL_HasIntersection(&mBounds, &mHitbox) == SDL_FALSE) {
-        mHitbox.x -= mXSpeed;
-        mHitbox.y -= mYSpeed;
-        if (mHitbox.y >= mBounds.y + mBounds.h) {
-            return false;
-        }
-    } else {
-        mX += mXSpeed;
-        mY += mYSpeed;
-    }
-
-    mXSpeed = 0;
-    mYSpeed = 0;
-    return true;
-}
-
-/**
- * @brief Sets the movement speed of the component.
- * @param xSpeed The speed along the x-axis.
- * @param ySpeed The speed along the y-axis.
- */
-void RxComponent::setMovementParameters(int xSpeed, int ySpeed) {
-    mXSpeed = xSpeed;
-    mYSpeed = ySpeed;
-}
+void Base3D::update() { changed_ = true; }

@@ -2,11 +2,11 @@
 #define RX_FRAME_HEADER
 
 #include <SDL2/SDL.h>
+#include <SDL_Graph/Components/RxComponent.hpp>
 #include <functional>
 #include <memory>
 #include <set>
 #include <vector>
-#include "RxComponent.hpp"
 
 const unsigned char WAIT_ON_FRAME = 0b00000001;
 const unsigned char DETACH_FROM_FRAME = 0b00000010;
@@ -14,23 +14,23 @@ const unsigned char DETACH_FROM_FRAME = 0b00000010;
 /**
  * @brief A window frame for rendering components.
  */
-class RxFrame
-{
+class RxFrame {
 private:
-  int mFramesPerSecond;
-  int mFrameTime;
-  int mWidth, mHeight;
-  bool mNeedsRepaint;
-  bool mIsRunning;
+  int fps_;
+  int frame_time_;
+  int width_, mHeight;
+  bool needs_repaint_;
+  alignas(bool) volatile bool is_running_; // make sure the termination flag is
+                                           // thread save
 
-  std::shared_ptr<SDL_mutex> mMutex;
-  std::shared_ptr<SDL_Window> mDisplay;
-  std::shared_ptr<SDL_Renderer> mRenderer;
-  std::shared_ptr<SDL_Thread> mGraphicThread;
-  std::shared_ptr<std::function<void()>> mOnUpdate;
-  std::shared_ptr<std::function<void(SDL_Event)>> mKeyListener;
-  std::shared_ptr<std::set<char>> mKeyMap;
-  std::shared_ptr<std::vector<RxComponent *>> mChildren;
+  std::shared_ptr<SDL_mutex> mutex_;
+  std::shared_ptr<SDL_Window> display_;
+  std::shared_ptr<SDL_Renderer> renderer_;
+  std::shared_ptr<SDL_Thread> graphics_thread_;
+  std::shared_ptr<std::function<void()>> on_update_;
+  std::shared_ptr<std::function<void(SDL_Event)>> key_listener_;
+  std::shared_ptr<std::set<char>> key_map_;
+  std::shared_ptr<std::vector<Renderable *>> children_;
 
   /**
    * @brief Internal mouse click handler.
@@ -43,53 +43,44 @@ private:
    * @param data Pointer to the RxFrame instance.
    * @return 1 on success, -1 on failure.
    */
-  static int static_thread_function(void *I)
-  {
+  static int static_thread_function(void *I) {
     RxFrame *frame = (RxFrame *)I;
 
     if (SDL_Init(SDL_INIT_VIDEO) < 0 /*|| TTF_Init() < 0*/
-        || SDL_Init(SDL_INIT_TIMER < 0))
-    {
+        || SDL_Init(SDL_INIT_TIMER < 0)) {
       return -1;
     }
 
-    frame->mDisplay = std::shared_ptr<SDL_Window>(
-        SDL_CreateWindow("Test", 50, 50, frame->mWidth, frame->mHeight,
+    frame->display_ = std::shared_ptr<SDL_Window>(
+        SDL_CreateWindow("Test", 50, 50, frame->width_, frame->mHeight,
                          SDL_WINDOW_SHOWN),
-        [](SDL_Window *window)
-        {
-          if (window)
-          {
+        [](SDL_Window *window) {
+          if (window) {
             SDL_DestroyWindow(window);
           }
         });
-    if (!frame->mDisplay.get())
+    if (!frame->display_.get())
       return -1;
 
-    frame->mRenderer = std::shared_ptr<SDL_Renderer>(
-        SDL_CreateRenderer(frame->mDisplay.get(), -1, SDL_RENDERER_ACCELERATED),
-        [](SDL_Renderer *render)
-        {
-          if (render)
-          {
+    frame->renderer_ = std::shared_ptr<SDL_Renderer>(
+        SDL_CreateRenderer(frame->display_.get(), -1, SDL_RENDERER_ACCELERATED),
+        [](SDL_Renderer *render) {
+          if (render) {
             SDL_DestroyRenderer(render);
           }
         });
-    if (!frame->mRenderer.get())
+    if (!frame->renderer_.get())
       return -1;
 
-    while (frame->mIsRunning)
-    {
-      if (frame->mNeedsRepaint)
-      {
-        SDL_mutexP(frame->mMutex.get());
+    while (frame->is_running_) {
+      if (frame->needs_repaint_) {
+        SDL_mutexP(frame->mutex_.get());
         if (frame->renderNextFrame() == -1)
-          frame->mIsRunning = false;
-        SDL_mutexV(frame->mMutex.get());
+          frame->is_running_ = false;
+        SDL_mutexV(frame->mutex_.get());
       }
-      if (frame->mOnUpdate.get())
-      {
-        (*frame->mOnUpdate.get())();
+      if (frame->on_update_.get()) {
+        (*frame->on_update_.get())();
       }
     }
 
@@ -130,7 +121,7 @@ public:
    * @brief Adds a component to the frame.
    * @param component Pointer to the component.
    */
-  void addComponent(RxComponent *component);
+  void addComponent(Renderable *component);
 
   /**
    * @brief Sets the update callback.
@@ -143,6 +134,9 @@ public:
    * @param keyFunc The key event handler.
    */
   void setKeyListener(std::function<void(SDL_Event)> keyFunc);
+
+  bool isRunning() { return is_running_; }
+  void setRunning(bool val) { is_running_ = val; }
 };
 
 #endif
